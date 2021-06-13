@@ -21,17 +21,6 @@ class CategoryController extends Controller
         $categories = Category::all();
         return response(json_encode($categories));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -40,7 +29,14 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'string|required',
+        ]);
+        
+        $category = new Category;
+        $category->name = $request->name;
+        $category->save();
+        return response('Data stored successfully', 200);
     }
 
     /**
@@ -49,22 +45,10 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
-    {
-        //
+    public function show($id) {
+        $category= Category::findOrFail($id);
+        return response(json_encode($category));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Category  $category
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Category $category)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      *
@@ -72,9 +56,12 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        //
+        $category = Category::find($id);
+        $category->name = $request->get('name');
+        $category->save();
+        return ('Data updated successfully');
     }
 
     /**
@@ -83,8 +70,10 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return ('Data deleted successfully deleted!');
     }
 }

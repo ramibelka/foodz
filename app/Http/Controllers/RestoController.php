@@ -15,7 +15,7 @@ class RestoController extends Controller
     public function index()
     {
         //$restos = Restaurant::where('address','Constantine')->get();
-        $restos = Restaurant::find(2);
+        $restos = Restaurant::all();
         return json_encode($restos);
     }
 
@@ -27,10 +27,23 @@ class RestoController extends Controller
      */
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'name' => 'required',
+            'Address' => 'required',
+        ]);
+
         $resto = new Restaurant;
         $resto->name = $request->input('name');
-        $resto->address = $request->input('address');
+        $resto->Address = $request->input('Address');
+        $resto->Photo = $request->input('Photo');
         $resto->save();
+        if ($resto){
+            return response('Data stored successfully', 200);
+        }
+        else
+        {
+            return ('data is not stored properly');
+        }
     }
 
     /**
@@ -41,7 +54,8 @@ class RestoController extends Controller
      */
     public function show($id)
     {
-        //
+        $restaurant = Restaurant::where('id', $id)->first();
+        return response(json_encode($restaurant));
     }
 
     /**
@@ -53,9 +67,18 @@ class RestoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required',
+            'Address' => 'required',
+        ]);
+        
+        $resto = Restaurant::find($id);
+        $resto->name =  $request->get('name');
+        $resto->Address = $request->get('Address');
+        $resto->Photo = $request->get('Photo');
+        $resto->save();
+        return ('Data updated successfully');
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -64,6 +87,8 @@ class RestoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $resto = Restaurant::findOrFail($id);
+        $resto->delete();
+        return ('Data deleted successfully');
     }
 }

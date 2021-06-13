@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Order;
 
 class OrderController extends Controller
 {
@@ -14,32 +15,23 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
-        $users = DB::table('users')->get();
-        
-        foreach ($users as $user) {
-            echo $user->email;
-        }
+        $orders = Order::all();
+        return response(json_encode($orders));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return 'create order';
-    }
-
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /* ta3 chikh
     public function store(Request $request)
     {
+        $validated = $request->validate([
+            'email' => 'string|required',
+            'password' => 'string|required',
+        ]);
+
         if($request->header('Content-type')=='application/json'){
             $email = $request['email'];
             $password =$request['password']; 
@@ -54,6 +46,22 @@ class OrderController extends Controller
         );
         return response('Data stored successfully', 200);
     }
+    */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'Payment_Method'=>'required',
+            'Position'=>'required'
+        ]);
+
+        $order = new Order;
+        $order->state = $request->get('state');
+        $order->Delivery_Address = $request->get('Delivery_Address');
+        $order->Payment_Method = $request->get('Payment_Method');
+        $order->Position = $request->get('Position');
+        $order->save();
+        return ('Data stored successfully');
+    }
 
     /**
      * Display the specified resource.
@@ -61,22 +69,22 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    /* ta3 chikh
+    public function show(Order $order)
     {
-        //
-        return 'show order '.$id;
+        $order = Order::where('id', $order->id)
+            ->with(
+                [
+                    'date', 'state', 'delivery address', 'payment method', 'position'
+                ]
+            )->first();
+        return response(json_encode($order));
     }
+    */
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-        return 'edit order '.$id;
+    public function show($id) {
+        $order= Order::findOrFail($id);
+        return response(json_encode($order));
     }
 
     /**
@@ -88,8 +96,18 @@ class OrderController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
-        return 'update order '.$id;
+        $request->validate([
+            'Payment_Method'=>'required',
+            'Position'=>'required'
+        ]);
+
+        $order = Order::find($id);
+        $order->state = $request->get('state');
+        $order->Delivery_Address = $request->get('Delivery_Address');
+        $order->Payment_Method = $request->get('Payment_Method');
+        $order->Position = $request->get('Position');
+        $order->save();
+        return ('Data updated successfully');
     }
 
     /**
@@ -98,9 +116,11 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Order $order)
     {
-        //
-        return 'destroy order '.$id;
+        $order = Order::findOrFail($id);
+        $order->delete();
+        return redirect('api/orders')->with('success', 'Order deleted!');
     }
+
 }
