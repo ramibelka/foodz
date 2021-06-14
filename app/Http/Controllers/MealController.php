@@ -7,7 +7,11 @@ use App\Meal;
 
 class MealController extends Controller
 {
-    //
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->except(['index' , 'show']);
+    }
+
     public function index(){
         $meals = Meal::all();
         return response(json_encode($meals));
