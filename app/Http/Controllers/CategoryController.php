@@ -9,7 +9,7 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:sanctum')->except(['index' , 'show']);
+        $this->middleware(['auth:sanctum', 'is_admin'])->except(['index' , 'show']);
     }
     /**
      * Display a listing of the resource.
@@ -20,6 +20,15 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
         return response(json_encode($categories));
+
+        $resto->save();
+        $request->file()->storeAs('public/images/resto/',$name);
+
+        $photo = new Photo;
+        $photo->name= $name;
+        $photo->type = 'resto';
+        $photo->id= $resto->id;
+
     }
     /**
      * Store a newly created resource in storage.
@@ -36,6 +45,7 @@ class CategoryController extends Controller
         $category = new Category;
         $category->name = $request->name;
         $category->save();
+        
         return response('Data stored successfully', 200);
     }
 

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function isadmin() {
+        return ($request->role == 'user');
+    }
     /**
      * Display a listing of the resource.
      *
