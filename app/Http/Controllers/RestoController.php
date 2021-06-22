@@ -39,7 +39,21 @@ class RestoController extends Controller
         $resto = new Restaurant;
         $resto->name = $request->input('name');
         $resto->Address = $request->input('Address');
-        $resto->Photo = $request->input('Photo');
+
+        if ($request->hasFile('image')) {
+
+            $originalImage = $request->file('image');
+            
+            // Resize the image
+            $resizedImage = Image::make($originalImage);
+            $resizedImage->resize(null, 200, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $resizedImage->stream();
+
+            Storage::disk('local')->put('public/images/restaurant/' . $resto->id, $resizedImage, 'public');
+        }
+
         $resto->save();
         if ($resto){
             return response('Data stored successfully', 200);
